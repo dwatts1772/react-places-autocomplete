@@ -348,7 +348,10 @@ class PlacesAutocomplete extends Component {
           <Paper
             role="listbox"
             id="PlacesAutocomplete__autocomplete-container"
-            style={this.inlineStyleFor("autocompleteContainer")}
+            style={{
+              ...this.inlineStyleFor("autocompleteContainer"),
+              zIndex: 9999
+            }}
             className={this.classNameFor("autocompleteContainer")}
           >
             {autocompleteItems.map((p, idx) => (
