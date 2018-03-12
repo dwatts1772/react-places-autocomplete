@@ -40279,7 +40279,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    position: "absolute",
 	    top: "100%",
 	    backgroundColor: "white",
-	    border: "1px solid #555555",
 	    width: "100%"
 	  },
 	  autocompleteItem: {
