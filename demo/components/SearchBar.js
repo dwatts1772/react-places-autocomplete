@@ -1,13 +1,13 @@
-import React, { Component } from 'react'
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from '../../src'
+import React, {Component} from 'react';
+import PlacesAutocomplete, {geocodeByAddress, getLatLng} from '../../src';
 
-const renderSuggestion = ({ formattedSuggestion }) => (
+const renderSuggestion = ({formattedSuggestion}) => (
   <div className="Demo__suggestion-item">
     <i className="fa fa-map-marker Demo__suggestion-icon" />
     <strong>{formattedSuggestion.mainText}</strong>{' '}
     <small className="text-muted">{formattedSuggestion.secondaryText}</small>
   </div>
-)
+);
 
 const renderFooter = () => (
   <div className="Demo__dropdown-footer">
@@ -18,66 +18,70 @@ const renderFooter = () => (
       />
     </div>
   </div>
-)
+);
 
 const cssClasses = {
   root: 'form-group',
   input: 'Demo__search-input',
   autocompleteContainer: 'Demo__autocomplete-container',
-}
+};
 
-const shouldFetchSuggestions = ({ value }) => value.length > 2
+const shouldFetchSuggestions = ({value}) => value.length > 2;
 
 const onError = (status, clearSuggestions) => {
   console.log(
     'Error happened while fetching suggestions from Google Maps API',
-    status
-  )
-  clearSuggestions()
-}
+    status,
+  );
+  clearSuggestions();
+};
 
 class SearchBar extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       address: '',
+      formattedAddress: '',
       geocodeResults: null,
       loading: false,
-    }
+    };
 
-    this.handleSelect = this.handleSelect.bind(this)
-    this.handleChange = this.handleChange.bind(this)
+    this.handleSelect = this.handleSelect.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
-  handleSelect(address) {
+  handleSelect(address, placeId, formattedAddress) {
+    console.log('fo', formattedAddress);
     this.setState({
       address,
+      formattedAddress,
       loading: true,
-    })
+    });
 
     geocodeByAddress(address)
       .then(results => getLatLng(results[0]))
-      .then(({ lat, lng }) => {
-        console.log('Geocode Success', { lat, lng })
+      .then(({lat, lng}) => {
+        console.log('Geocode Success', {lat, lng});
         this.setState({
           geocodeResults: this.renderGeocodeSuccess(lat, lng),
           loading: false,
-        })
+        });
       })
       .catch(error => {
-        console.log('Geocode Error', error)
+        console.log('Geocode Error', error);
         this.setState({
           geocodeResults: this.renderGeocodeFailure(error),
           loading: false,
-        })
-      })
+        });
+      });
   }
 
-  handleChange(address) {
+  handleChange(address, placeId, formattedAddress) {
     this.setState({
       address,
+      formattedAddress,
       geocodeResults: null,
-    })
+    });
   }
 
   renderGeocodeFailure(err) {
@@ -85,7 +89,7 @@ class SearchBar extends Component {
       <div className="alert alert-danger" role="alert">
         <strong>Error!</strong> {err}
       </div>
-    )
+    );
   }
 
   renderGeocodeSuccess(lat, lng) {
@@ -96,7 +100,7 @@ class SearchBar extends Component {
           {lat}, {lng}
         </strong>
       </div>
-    )
+    );
   }
 
   render() {
@@ -105,16 +109,16 @@ class SearchBar extends Component {
       value: this.state.address,
       onChange: this.handleChange,
       onBlur: () => {
-        console.log('Blur event!')
+        console.log('Blur event!');
       },
       onFocus: () => {
-        console.log('Focused!')
+        console.log('Focused!');
       },
       autoFocus: true,
       placeholder: 'Search Places',
       name: 'Demo__input',
       id: 'my-input-id',
-    }
+    };
 
     return (
       <div>
@@ -137,8 +141,8 @@ class SearchBar extends Component {
           <div className="geocoding-results">{this.state.geocodeResults}</div>
         )}
       </div>
-    )
+    );
   }
 }
 
-export default SearchBar
+export default SearchBar;

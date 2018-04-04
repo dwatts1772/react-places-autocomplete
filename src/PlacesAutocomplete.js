@@ -4,12 +4,12 @@
 * See https://kenny-hibino.github.io/react-places-autocomplete
 */
 
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import Paper from "material-ui/Paper";
-import { MenuItem } from "material-ui/Menu";
-import debounce from "lodash.debounce";
-import defaultStyles from "./defaultStyles";
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+import Paper from 'material-ui/Paper';
+import {MenuItem} from 'material-ui/Menu';
+import debounce from 'lodash.debounce';
+import defaultStyles from './defaultStyles';
 
 class PlacesAutocomplete extends Component {
   constructor(props) {
@@ -17,7 +17,7 @@ class PlacesAutocomplete extends Component {
 
     this.state = {
       autocompleteItems: [],
-      userInputValue: props.inputProps.value
+      userInputValue: props.inputProps.value,
     };
 
     this.autocompleteCallback = this.autocompleteCallback.bind(this);
@@ -25,7 +25,7 @@ class PlacesAutocomplete extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.debouncedFetchPredictions = debounce(
       this.fetchPredictions,
-      this.props.debounce
+      this.props.debounce,
     );
     this.clearSuggestions = this.clearSuggestions.bind(this);
   }
@@ -33,13 +33,13 @@ class PlacesAutocomplete extends Component {
   componentDidMount() {
     if (!window.google) {
       throw new Error(
-        "Google Maps JavaScript API library must be loaded. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library"
+        'Google Maps JavaScript API library must be loaded. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library',
       );
     }
 
     if (!window.google.maps.places) {
       throw new Error(
-        "Google Maps Places library must be loaded. Please add `libraries=places` to the src URL. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library"
+        'Google Maps Places library must be loaded. Please add `libraries=places` to the src URL. See: https://github.com/kenny-hibino/react-places-autocomplete#load-google-library',
       );
     }
 
@@ -56,60 +56,59 @@ class PlacesAutocomplete extends Component {
     // transform snake_case to camelCase
     const formattedSuggestion = structured_formatting => ({
       mainText: structured_formatting.main_text,
-      secondaryText: structured_formatting.secondary_text
+      secondaryText: structured_formatting.secondary_text,
     });
 
-    const { highlightFirstSuggestion } = this.props;
-
+    const {highlightFirstSuggestion} = this.props;
     this.setState({
       autocompleteItems: predictions.map((p, idx) => ({
         suggestion: p.description,
         placeId: p.place_id,
         active: highlightFirstSuggestion && idx === 0 ? true : false,
         index: idx,
-        formattedSuggestion: formattedSuggestion(p.structured_formatting)
-      }))
+        formattedSuggestion: formattedSuggestion(p.structured_formatting),
+      })),
     });
   }
 
   fetchPredictions() {
-    const { value } = this.props.inputProps;
+    const {value} = this.props.inputProps;
     if (value.length) {
       this.autocompleteService.getPlacePredictions(
         {
           ...this.props.options,
-          input: value
+          input: value,
         },
-        this.autocompleteCallback
+        this.autocompleteCallback,
       );
     }
   }
 
   clearSuggestions() {
-    this.setState({ autocompleteItems: [] });
+    this.setState({autocompleteItems: []});
   }
 
   clearActive() {
     this.setState({
       autocompleteItems: this.state.autocompleteItems.map(item => ({
         ...item,
-        active: false
-      }))
+        active: false,
+      })),
     });
   }
 
-  selectAddress(address, placeId, e) {
+  selectAddress(address, placeId, e, formattedAddress) {
     if (e !== undefined) {
       e.preventDefault();
     }
     this.clearSuggestions();
-    this.handleSelect(address, placeId);
+    this.handleSelect(address, placeId, formattedAddress);
   }
 
-  handleSelect(address, placeId) {
+  handleSelect(address, placeId, formattedAddress) {
     this.props.onSelect
-      ? this.props.onSelect(address, placeId)
-      : this.props.inputProps.onChange(address);
+      ? this.props.onSelect(address, placeId, formattedAddress)
+      : this.props.inputProps.onChange(address, formattedAddress);
   }
 
   getActiveItem() {
@@ -118,7 +117,7 @@ class PlacesAutocomplete extends Component {
 
   selectActiveItemAtIndex(index) {
     const activeName = this.state.autocompleteItems.find(
-      item => item.index === index
+      item => item.index === index,
     ).suggestion;
     this.setActiveItemAtIndex(index);
     this.props.inputProps.onChange(activeName);
@@ -134,7 +133,12 @@ class PlacesAutocomplete extends Component {
     if (activeItem === undefined) {
       this.handleEnterKeyWithoutActiveItem();
     } else {
-      this.selectAddress(activeItem.suggestion, activeItem.placeId);
+      this.selectAddress(
+        activeItem.suggestion,
+        activeItem.placeId,
+        undefined,
+        activeItem.formattedSuggestion,
+      );
     }
   }
 
@@ -179,19 +183,19 @@ class PlacesAutocomplete extends Component {
 
   handleInputKeyDown(event) {
     switch (event.key) {
-      case "Enter":
+      case 'Enter':
         event.preventDefault();
         this.handleEnterKey();
         break;
-      case "ArrowDown":
+      case 'ArrowDown':
         event.preventDefault(); // prevent the cursor from moving
         this.handleDownKey();
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         event.preventDefault(); // prevent the cursor from moving
         this.handleUpKey();
         break;
-      case "Escape":
+      case 'Escape':
         this.clearSuggestions();
         break;
     }
@@ -205,23 +209,23 @@ class PlacesAutocomplete extends Component {
     this.setState({
       autocompleteItems: this.state.autocompleteItems.map((item, idx) => {
         if (idx === index) {
-          return { ...item, active: true };
+          return {...item, active: true};
         } else {
-          return { ...item, active: false };
+          return {...item, active: false};
         }
-      })
+      }),
     });
   }
 
   handleInputChange(event) {
-    const { value } = event.target;
+    const {value} = event.target;
     this.props.inputProps.onChange(value);
-    this.setState({ userInputValue: value });
+    this.setState({userInputValue: value});
     if (!value) {
       this.clearSuggestions();
       return;
     }
-    if (this.props.shouldFetchSuggestions({ value })) {
+    if (this.props.shouldFetchSuggestions({value})) {
       this.debouncedFetchPredictions();
     }
   }
@@ -237,7 +241,7 @@ class PlacesAutocomplete extends Component {
   }
 
   inlineStyleFor(...props) {
-    const { classNames, styles } = this.props;
+    const {classNames, styles} = this.props;
     // No inline style if className is passed via props for the element.
     if (props.some(prop => classNames.hasOwnProperty(prop))) {
       return {};
@@ -247,18 +251,18 @@ class PlacesAutocomplete extends Component {
       return {
         ...acc,
         ...defaultStyles[prop],
-        ...styles[prop]
+        ...styles[prop],
       };
     }, {});
   }
 
   classNameFor(...props) {
-    const { classNames } = this.props;
+    const {classNames} = this.props;
 
     return props.reduce((acc, prop) => {
-      const name = classNames[prop] || "";
+      const name = classNames[prop] || '';
       return name ? `${acc} ${name}` : acc;
-    }, "");
+    }, '');
   }
 
   shouldRenderDropdown() {
@@ -272,14 +276,14 @@ class PlacesAutocomplete extends Component {
       ? `PlacesAutocomplete__autocomplete-item-${activeItem.placeId}`
       : null;
     const defaultInputProps = {
-      type: "text",
-      autoComplete: "off",
-      role: "combobox",
-      "aria-autocomplete": "list",
-      "aria-controls": "PlacesAutocomplete__autocomplete-container",
-      "aria-expanded": isExpanded,
-      "aria-haspopup": isExpanded,
-      "aria-activedescendant": activeItemId
+      type: 'text',
+      autoComplete: 'off',
+      role: 'combobox',
+      'aria-autocomplete': 'list',
+      'aria-controls': 'PlacesAutocomplete__autocomplete-container',
+      'aria-expanded': isExpanded,
+      'aria-haspopup': isExpanded,
+      'aria-activedescendant': activeItemId,
     };
 
     return {
@@ -294,8 +298,8 @@ class PlacesAutocomplete extends Component {
       onBlur: event => {
         this.handleInputOnBlur(event);
       },
-      style: this.inlineStyleFor("input"),
-      className: this.classNameFor("input")
+      style: this.inlineStyleFor('input'),
+      className: this.classNameFor('input'),
     };
   }
 
@@ -322,25 +326,25 @@ class PlacesAutocomplete extends Component {
   }
 
   handleSuggestionClick(prediction, event) {
-    const { suggestion, placeId } = prediction;
-    this.selectAddress(suggestion, placeId, event);
+    const {suggestion, placeId, formattedSuggestion} = prediction;
+    this.selectAddress(suggestion, placeId, event, formattedSuggestion);
     setTimeout(() => {
       this.mousedownOnSuggestion = false;
     });
   }
 
   render() {
-    const { autocompleteItems } = this.state;
+    const {autocompleteItems} = this.state;
     const inputProps = this.getInputProps();
 
     return (
       <div
         id="PlacesAutocomplete__root"
-        style={this.inlineStyleFor("root")}
-        className={this.classNameFor("root")}
+        style={this.inlineStyleFor('root')}
+        className={this.classNameFor('root')}
       >
         {this.props.hasCustomInput ? (
-          React.cloneElement(this.props.children, { ...inputProps })
+          React.cloneElement(this.props.children, {...inputProps})
         ) : (
           <input {...inputProps} />
         )}
@@ -349,10 +353,10 @@ class PlacesAutocomplete extends Component {
             role="listbox"
             id="PlacesAutocomplete__autocomplete-container"
             style={{
-              ...this.inlineStyleFor("autocompleteContainer"),
-              zIndex: 9999
+              ...this.inlineStyleFor('autocompleteContainer'),
+              zIndex: 9999,
             }}
-            className={this.classNameFor("autocompleteContainer")}
+            className={this.classNameFor('autocompleteContainer')}
           >
             {autocompleteItems.map((p, idx) => (
               <div
@@ -369,23 +373,23 @@ class PlacesAutocomplete extends Component {
                 style={
                   p.active
                     ? this.inlineStyleFor(
-                        "autocompleteItem",
-                        "autocompleteItemActive"
+                        'autocompleteItem',
+                        'autocompleteItemActive',
                       )
-                    : this.inlineStyleFor("autocompleteItem")
+                    : this.inlineStyleFor('autocompleteItem')
                 }
                 className={
                   p.active
                     ? this.classNameFor(
-                        "autocompleteItem",
-                        "autocompleteItemActive"
+                        'autocompleteItem',
+                        'autocompleteItemActive',
                       )
-                    : this.classNameFor("autocompleteItem")
+                    : this.classNameFor('autocompleteItem')
                 }
               >
                 {this.props.renderSuggestion({
                   suggestion: p.suggestion,
-                  formattedSuggestion: p.formattedSuggestion
+                  formattedSuggestion: p.formattedSuggestion,
                 })}
               </div>
             ))}
@@ -401,11 +405,11 @@ PlacesAutocomplete.propTypes = {
   inputProps: (props, propName) => {
     const inputProps = props[propName];
 
-    if (!inputProps.hasOwnProperty("value")) {
+    if (!inputProps.hasOwnProperty('value')) {
       throw new Error("'inputProps' must have 'value'.");
     }
 
-    if (!inputProps.hasOwnProperty("onChange")) {
+    if (!inputProps.hasOwnProperty('onChange')) {
       throw new Error("'inputProps' must have 'onChange'.");
     }
   },
@@ -417,14 +421,14 @@ PlacesAutocomplete.propTypes = {
     input: PropTypes.string,
     autocompleteContainer: PropTypes.string,
     autocompleteItem: PropTypes.string,
-    autocompleteItemActive: PropTypes.string
+    autocompleteItemActive: PropTypes.string,
   }),
   styles: PropTypes.shape({
     root: PropTypes.object,
     input: PropTypes.object,
     autocompleteContainer: PropTypes.object,
     autocompleteItem: PropTypes.object,
-    autocompleteItemActive: PropTypes.object
+    autocompleteItemActive: PropTypes.object,
   }),
   options: PropTypes.shape({
     bounds: PropTypes.object,
@@ -432,28 +436,28 @@ PlacesAutocomplete.propTypes = {
     location: PropTypes.object,
     offset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     radius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    types: PropTypes.array
+    types: PropTypes.array,
   }),
   debounce: PropTypes.number,
   highlightFirstSuggestion: PropTypes.bool,
   renderFooter: PropTypes.func,
   shouldFetchSuggestions: PropTypes.func.isRequired,
-  hasCustomInput: PropTypes.bool.isRequired
+  hasCustomInput: PropTypes.bool,
 };
 
 PlacesAutocomplete.defaultProps = {
   onError: (status, _clearSuggestions) =>
     console.error(
-      "[react-places-autocomplete]: error happened when fetching data from Google Maps API.\nPlease check the docs here (https://developers.google.com/maps/documentation/javascript/places#place_details_responses)\nStatus: ",
-      status
+      '[react-places-autocomplete]: error happened when fetching data from Google Maps API.\nPlease check the docs here (https://developers.google.com/maps/documentation/javascript/places#place_details_responses)\nStatus: ',
+      status,
     ),
   classNames: {},
-  renderSuggestion: ({ suggestion }) => <div>{suggestion}</div>,
+  renderSuggestion: ({suggestion}) => <div>{suggestion}</div>,
   styles: {},
   options: {},
   debounce: 200,
   highlightFirstSuggestion: false,
-  shouldFetchSuggestions: () => true
+  shouldFetchSuggestions: () => true,
 };
 
 export default PlacesAutocomplete;
